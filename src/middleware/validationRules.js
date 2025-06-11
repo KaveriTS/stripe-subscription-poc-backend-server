@@ -1,4 +1,4 @@
-const { body, param } = require('express-validator');
+const { body, param, query } = require('express-validator');
 
 // Validation rules for creating a subscription
 const subscriptionValidationRules = () => {
@@ -22,7 +22,7 @@ const subscriptionValidationRules = () => {
 //validation rules for getting subscription status by email
 const getSubscriptionStatusValidationRules = () => {
   return [
-    param('email')
+    query('email')
       .isEmail()
       .normalizeEmail()
       .withMessage('Please enter a valid email address')

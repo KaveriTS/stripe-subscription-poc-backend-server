@@ -125,6 +125,34 @@ src/
 ├── routes/         # API routes
 └── services/       # Business logic and external service integrations
 ```
+## Stripe Test Key Configuration
+
+To run this project, you need a Stripe test secret key.  
+Set your key in your environment variables as:
+
+```
+STRIPE_SECRET_KEY=sk_test_...
+```
+
+You can find your test key in your [Stripe Dashboard](https://dashboard.stripe.com/test/apikeys).
+
+## Stripe Test Cards
+
+Use the following test cards to simulate different payment outcomes:
+
+- **Success:**  
+  `4242 4242 4242 4242` (Any future expiry, any CVC)
+
+- **Failure (Insufficient funds):**  
+  `4000 0000 0000 9995`
+
+- **Failure (Card declined):**  
+  `4000 0000 0000 0002`
+
+- **Failure (Incorrect CVC):**  
+  `4000 0000 0000 0127`
+
+For more test cards, see the [Stripe Testing Documentation](https://stripe.com/docs/testing).
 
 ## Security Features
 
