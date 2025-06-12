@@ -1,7 +1,7 @@
 const { createStripeCustomer, createSubscription, cancelStripeSubscription, retryStripePayment } = require('../services/stripeSubscriptionService');
 const { stripeSubscriptionClient } = require('../config/stripeClients');
 const { AppError, catchAsync } = require('../middleware/errorHandler');
-const {  getStripePrices, getStripeProducts } = require('../services/stripeSubscriptionService');
+const {  getStripePrices, getStripeProducts, createTestClock } = require('../services/stripeSubscriptionService');
 const subscriptionDbService = require('../services/subscriptionDbService');
 
 /**
@@ -37,9 +37,11 @@ const getStripeProductsList = catchAsync(async (req, res) => {
  */
 const createNewSubscription = catchAsync(async (req, res) => {
   const { email, paymentMethodId, productId, priceId } = req.body;
-
+  const testClock = await createTestClock();
+  console.log('Test Clock ID:', testClock);
+  const testClockId = testClock.id;
   // Create or get customer
-  const customer = await createStripeCustomer(email, paymentMethodId);
+  const customer = await createStripeCustomer(email,{ test_clock_id: testClockId });
 
   // Create subscription
   const subscription = await createSubscription(customer.id, priceId, paymentMethodId, productId);
@@ -47,7 +49,8 @@ const createNewSubscription = catchAsync(async (req, res) => {
   res.status(201).json({
     status: 'success',
     data: {
-      subscription
+      subscription,
+      testClockId
     }
   });
 });

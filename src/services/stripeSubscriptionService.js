@@ -4,7 +4,7 @@ const { AppError } = require('../middleware/errorHandler');
 
 // Creates a new customer in Stripe and our database
 
-const createStripeCustomer = async (email, name = null, metadata = {}) => {
+const createStripeCustomer = async (email, metadata = {}) => {
   try {
     // check if email already exists in our database
     const existingCustomer = await subscriptionDbService.findCustomerByParam({email});
@@ -13,8 +13,9 @@ const createStripeCustomer = async (email, name = null, metadata = {}) => {
     }
     const customerData = {
       email,
+      test_clock: metadata.test_clock_id || null, // Optional test clock ID for testing purposes
       metadata: {
-        created_by: 'subscription_backend'
+        created_by: 'subscription_backend',
       }
     };
 
@@ -26,17 +27,12 @@ const createStripeCustomer = async (email, name = null, metadata = {}) => {
       };
     }
 
-    if (name) {
-      customerData.name = name;
-    }
-
     // Create customer in Stripe
     const stripeCustomer = await stripeSubscriptionClient.customers.create(customerData);
 
     // Save customer in our database
     const dbCustomer = await subscriptionDbService.createCustomer({
       email,
-      name,
       stripeCustomerId: stripeCustomer.id,
       metadata: customerData.metadata
     });
@@ -64,7 +60,19 @@ const createSubscription = async (customerId, priceId, paymentMethodId, productI
     // Get price details from Stripe
     const price = await stripeSubscriptionClient.prices.retrieve(priceId);
     const product = await stripeSubscriptionClient.products.retrieve(price.product);
+    // console.log('Product Method Check:', product);
 
+    // const check = await stripeSubscriptionClient.paymentMethods.retrieve(paymentMethodId);
+    // console.log('Payment Method Check:', check);
+    // await stripeSubscriptionClient.paymentMethods.attach(paymentMethodId, {
+    //   customer: customerId
+    // });
+
+    // await stripeSubscriptionClient.customers.update(customerId, {
+    //   invoice_settings: {
+    //     default_payment_method: paymentMethodId
+    //   }
+    // });
     const subscriptionData = {
       customer: customerId,
       items: [{
@@ -222,6 +230,15 @@ const getStripePrices = async () => {
   }
 };
 
+const createTestClock = async () => {
+  const testClock = await stripeSubscriptionClient.testHelpers.testClocks.create({
+    frozen_time: Math.floor(Date.now() / 1000), // start from current time
+    name: 'Daily Subscription Simulation'
+  });
+  return testClock;
+};
+
+
 module.exports = {
   createStripeCustomer,
   createSubscription,
@@ -229,4 +246,5 @@ module.exports = {
   getUpcomingInvoice,
   getStripeProducts,
   getStripePrices,
+  createTestClock,
 };

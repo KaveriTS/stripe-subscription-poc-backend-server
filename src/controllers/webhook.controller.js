@@ -199,7 +199,7 @@ const handleInvoicePaymentSucceeded = async (invoice) => {
  * Handle customer.subscription.updated event
  */
 const handleSubscriptionUpdated = async (stripeSubscription) => {
-  console.log('Processing subscription.updated event:', stripeSubscription.id);
+  console.log('Processing subscription.updated event:', stripeSubscription);
   
   try {
     // Find and update subscription in database
